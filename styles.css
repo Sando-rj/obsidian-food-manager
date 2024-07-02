@@ -1,0 +1,48 @@
+/*
+
+This CSS file will be included with your plugin, and
+available in the app when your plugin is enabled.
+
+If your plugin does not need CSS, delete this file.
+
+*/
+
+.recipeeName {
+    padding: 0 .5em;
+}
+
+.recipeeName > label + input {
+    margin: 0 .5em;
+}
+
+.recipeeForm > hr {
+    margin: 1em 0;
+}
+
+.ingredientLabels, .ingredientList {
+    display: grid;
+    grid-template-columns: 45% 45% auto;
+    grid-row-gap: 0.5em;
+    grid-column-gap: 0.5em;
+    padding: 0 .5em 1.5em .5em;
+}
+
+.ingredientLabels > .name {
+    grid-column: 1;
+}
+
+.ingredientLabels > .quantity {
+    grid-column: 2
+}
+
+.ingredientList > .name {
+    grid-column: 1;
+}
+
+.ingredientList > .quantity {
+    grid-column: 2;
+}
+
+.ingredientList > button {
+    grid-column: 3;
+}
