@@ -48,34 +48,34 @@ interface NutrientsObject {
 export const VIEW_TYPE_EXAMPLE = "example-view";
 
 export class RecipeeView extends ItemView {
-  settings: FoodManagerSettings
+	settings: FoodManagerSettings
 	foodData: Ingredient[];
 
 	constructor(leaf: WorkspaceLeaf, settings: FoodManagerSettings, foodData: Ingredient[]) {
-    super(leaf);
-	this.settings = settings;
+		super(leaf);
+		this.settings = settings;
 		this.foodData = foodData;
-  }
+	}
 
-  getViewType() {
-    return VIEW_TYPE_EXAMPLE;
-  }
+	getViewType() {
+		return VIEW_TYPE_EXAMPLE;
+	}
 
-  getDisplayText() {
-    return "Recipee";
-  }
+	getDisplayText() {
+		return "Recipee";
+	}
 
-  async onOpen() {
-    const container = this.containerEl.children[1];
-	this.icon = "chef-hat";
+	async onOpen() {
+		const container = this.containerEl.children[1];
+		this.icon = "chef-hat";
 
-    container.empty();
+		container.empty();
 		container.addClass("recipeeTab")
-    container.createEl("h4", { text: "Recipee" });
-	let createRecipee = container.createEl("button", { text: "Create Recipee" });
-	createRecipee.onclick = (() => {
+		container.createEl("h4", { text: "Recipee" });
+		let createRecipee = container.createEl("button", { text: "Create Recipee" });
+		createRecipee.onclick = (() => {
 			new RecipeeCreation(this.app, this.settings, this.foodData).open();
-	});
+		});
 
 		container.createEl("hr");
 		container.createEl("label", { text: "Find Ingredient: "} );
@@ -85,11 +85,11 @@ export class RecipeeView extends ItemView {
 		ingredientList.addClass("result");
 
 		findIngredient.oninput = (() => this.displayMatchingIngredients(findIngredient.value, ingredientList));
-  }
+	}
 
-  async onClose() {
-    // Nothing to clean up.
-  }
+	async onClose() {
+	// Nothing to clean up.
+	}
 
 	displayMatchingIngredients(input: string, display: HTMLElement){
 		if(input === ""){
@@ -140,7 +140,7 @@ export default class FoodManagerPlugin extends Plugin {
 				console.log(matchList)
 			}
 		});
-
+		
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new SettingTab(this.app, this));
 
@@ -164,6 +164,15 @@ export default class FoodManagerPlugin extends Plugin {
 		let result = await dvAPI.io.csv(this.settings.FoodNutritionDatabase);
 
 		this.foodData = result.map((r: NutrientsObject) => { return { name: r.alim_nom_fr } }).values;
+
+		let localIngredients = await this.app.vault.adapter.list("Ingredients");
+		
+		if(localIngredients){
+			localIngredients.files.forEach(file => {
+				let cleanedName = file.replace("Ingredients/", "").replace(".md", "");
+				this.foodData.push({ name: cleanedName});
+			});
+		}
 	}
 
 	async saveSettings() {
