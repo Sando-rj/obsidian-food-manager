@@ -49,9 +49,12 @@ export const VIEW_TYPE_EXAMPLE = "example-view";
 
 export class RecipeeView extends ItemView {
   settings: FoodManagerSettings
-  constructor(leaf: WorkspaceLeaf, settings: FoodManagerSettings) {
+	foodData: Ingredient[];
+
+	constructor(leaf: WorkspaceLeaf, settings: FoodManagerSettings, foodData: Ingredient[]) {
     super(leaf);
 	this.settings = settings;
+		this.foodData = foodData;
   }
 
   getViewType() {
@@ -67,11 +70,21 @@ export class RecipeeView extends ItemView {
 	this.icon = "chef-hat";
 
     container.empty();
+		container.addClass("recipeeTab")
     container.createEl("h4", { text: "Recipee" });
 	let createRecipee = container.createEl("button", { text: "Create Recipee" });
 	createRecipee.onclick = (() => {
-		new RecipeeCreation(this.app, this.settings).open();
+			new RecipeeCreation(this.app, this.settings, this.foodData).open();
 	});
+
+		container.createEl("hr");
+		container.createEl("label", { text: "Find Ingredient: "} );
+
+		let findIngredient = container.createEl("input", {text: "Find Ingredient" });
+		let ingredientList = container.createDiv();
+		ingredientList.addClass("result");
+
+		findIngredient.oninput = (() => this.displayMatchingIngredients(findIngredient.value, ingredientList));
   }
 
   async onClose() {
@@ -133,7 +146,7 @@ export default class FoodManagerPlugin extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_EXAMPLE,
-			(leaf) => new RecipeeView(leaf, this.settings)
+			(leaf) => new RecipeeView(leaf, this.settings, this.foodData)
 		);
 	
 		this.addRibbonIcon("chef-hat", "Activate view", () => {
