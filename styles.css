@@ -7,6 +7,8 @@ If your plugin does not need CSS, delete this file.
 
 */
 
+/* CSS for the Modal */
+
 .recipeeName {
     padding: 0 .5em;
 }
@@ -35,6 +37,10 @@ If your plugin does not need CSS, delete this file.
     grid-column: 2
 }
 
+.ingredientList {
+    position: relative;
+}
+
 .ingredientList > .name {
     grid-column: 1;
 }
@@ -45,6 +51,25 @@ If your plugin does not need CSS, delete this file.
 
 .ingredientList > button {
     grid-column: 3;
+}
+
+.ingredientList > ul {
+    float: left;
+    position: absolute;
+    grid-area: 2/ 1/ auto / 2;
+
+    border: grey 1px solid;
+    border-top: black;
+    background-color: #3d3d3d;
+
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    list-style-type: none;
+}
+
+.ingredientList > ul > li:hover {
+    background-color: #949494;
 }
 
 

@@ -114,7 +114,7 @@ export default class FoodManagerPlugin extends Plugin {
 			id: 'add-recipee',
 			name: 'Add new recipee',
 			callback: () => {
-				new RecipeeCreation(this.app, this.settings).open();
+				new RecipeeCreation(this.app, this.settings, this.foodData).open();
 			}
 		});
 
@@ -245,11 +245,13 @@ class StrictIngredientSuggestion extends SuggestModal<Ingredient>{
 class RecipeeCreation extends Modal {
 	settings: FoodManagerSettings
 	recipeeName: HTMLInputElement;
-	ingredientList : HTMLElement;
+	ingredientList: HTMLElement;
+	foodData: Ingredient[];
 
-	constructor(app: App, settings: FoodManagerSettings) {
+	constructor(app: App, settings: FoodManagerSettings, foodData: Ingredient[]) {
 		super(app);
 		this.settings = settings;
+		this.foodData = foodData;
 	}
 
 	onOpen() {
@@ -306,6 +308,28 @@ class RecipeeCreation extends Modal {
 
 		let newAddButton = parent.createEl("button", { text: "+" });
 		newAddButton.onclick = (() => {this.addIngredientInput(newAddButton, parent)});
+
+		let suggest = parent.createEl("ul");
+		suggest.style.display = "none";
+
+		inputIngredient.onfocus = (() => {
+			suggest.style.display = "block";
+			suggest.innerHTML = "";
+		});
+
+		inputIngredient.oninput = (() => {
+			suggest.innerHTML = "";
+			if(inputIngredient.value === "") return;
+
+			let toDisplay = fuzzyIngredientMatch(inputIngredient.value, this.foodData).splice(0,5).map(value => value.item.name);
+			toDisplay.forEach(element => {
+				let listItem = suggest.createEl("li", { text: element });
+				listItem.onclick = (() => {
+					inputIngredient.value = listItem.innerText;
+					suggest.innerHTML = "";
+				})
+			});
+		});
 
 		if(button) button.remove();
 	}
