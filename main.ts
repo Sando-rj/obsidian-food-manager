@@ -1,9 +1,21 @@
-import { App, Editor, FuzzySuggestModal, ItemView, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, SuggestModal, WorkspaceLeaf } from 'obsidian';
+/* Credits to Obsidian-Swither-Plus https://github.com/darlal/obsidian-switcher-plus/ for fuzzySearch use outside Modals */
+
+import { App, Editor, fuzzySearch, FuzzyMatch, FuzzySuggestModal, ItemView, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, PreparedQuery, prepareQuery, SearchResultContainer, Setting, sortSearchResults, SuggestModal, WorkspaceLeaf, TFile, normalizePath } from 'obsidian';
 import { getAPI } from 'obsidian-dataview';
 
 const properties = /---{}*---/;
 const ingredientProperties = /Ingredients:[\r\n]+  - "{}"/;
 
+interface Suggestion<T> extends FuzzyMatch<T> {
+	type: "food";
+	file: TFile;
+	downranked?: boolean;
+}
+
+interface FoodSugggestionContainer extends Omit<Suggestion<Ingredient>, 'file'> {
+}
+
+  
 // Remember to rename these classes and interfaces
 interface FoodManagerSettings {
 	FoodNutritionDatabase: string,
@@ -65,6 +77,16 @@ export class RecipeeView extends ItemView {
   async onClose() {
     // Nothing to clean up.
   }
+
+	displayMatchingIngredients(input: string, display: HTMLElement){
+		if(input === ""){
+			display.innerText = "";
+			return;
+		}
+
+		let matchList = fuzzyIngredientMatch(input, this.foodData);
+		display.innerText = matchList.slice(0,5).map((value) => value.item.name).join("\n");
+	}
 }
 
 export default class FoodManagerPlugin extends Plugin {
@@ -88,6 +110,21 @@ export default class FoodManagerPlugin extends Plugin {
 			name: 'Find Ingredient in Database',
 			callback: () => {
 				new IngredientSuggestion(this.app, this).open();
+			}
+		});
+
+		this.addCommand({
+			id: 'custom-fuzzy',
+			name: 'Custom manual fuzzy search',
+			callback: () => {
+				let matchList = [] as FoodSugggestionContainer[];
+				let pQ = prepareQuery("Boeuf") as PreparedQuery;
+				this.foodData.forEach( item => {
+					let match = fuzzySearch(pQ, item.name)
+					if (match) matchList.push({ type: "food", item, match: match });
+				});
+				sortSearchResults(matchList);
+				console.log(matchList)
 			}
 		});
 
