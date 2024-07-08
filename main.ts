@@ -363,3 +363,16 @@ class SettingTab extends PluginSettingTab {
 
 	}
 }
+
+function fuzzyIngredientMatch(input: string, foodData: Ingredient[]): FoodSugggestionContainer[] {
+	let matchList = [] as FoodSugggestionContainer[];
+	let pQ = prepareQuery(input) as PreparedQuery;
+	
+	foodData.forEach( item => {
+		let match = fuzzySearch(pQ, item.name)
+		if (match) matchList.push({ type: "food", item, match: match });
+	});
+	
+	sortSearchResults(matchList);
+	return matchList;
+}
